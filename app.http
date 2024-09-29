@@ -2,7 +2,7 @@ POST http://localhost:3000/register
 Content-Type: application/json 
 
 {
-  "name": "John Doe",
+  "name": "Nagulmeera",
   "address": "123 Main Street"
 }
 ####

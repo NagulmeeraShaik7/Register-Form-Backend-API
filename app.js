@@ -2,9 +2,10 @@ const express = require("express");
 const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 const path = require("path");
-
+const cors = require("cors");
 const app = express();
-app.use(express.json());
+app.use(express.json()); 
+app.use(cors());
 
 const databasePath = path.join(__dirname, "registration.db");
 
@@ -19,8 +20,7 @@ const initializeDbAndServer = async () => {
       driver: sqlite3.Database,
     });
 
-    
-    
+   
 
     app.listen(3000, () => {
       console.log("Server is running on http://localhost:3000/");
@@ -42,6 +42,19 @@ app.post("/register", async (req, res) => {
     // Check if required fields are present
     if (!name || !address) {
       return res.status(400).send("Name and address are required.");
+    }
+
+    // Check if the user with the same name and address already exists
+    const checkUserExistsQuery = `
+      SELECT User.id 
+      FROM User 
+      JOIN Address ON User.id = Address.userId 
+      WHERE User.name = ? AND Address.address = ?;
+    `;
+    const existingUser = await database.get(checkUserExistsQuery, [name, address]);
+
+    if (existingUser) {
+      return res.status(400).send("User with this name and address already exists.");
     }
 
     // Insert the user into the User table
